@@ -4,6 +4,7 @@
 myFile1=.info.txt
 myFile2=.marks.txt
 MAXSUB=20
+MAXLIMIT=25
 
 ############### Functions #################
 # wait funciton will do two works based on second argument
@@ -48,9 +49,9 @@ function clearVariables {
 	class=""
 	subno=0
 	count=0
-	subname=()
-	subtotal=()
-	subobtain=()
+	declare -a subname
+	declare -a subtotal
+	declare -a subobtain
 	gtotal=0
 	gobtain=0
 	percentage=0
@@ -60,21 +61,51 @@ function searchingRecord {
 	grep -i "$1" $myFile1 | grep -i "$2" | awk -F ":" '{printf " Registeration No : %s\n Roll Number      : %s\n Student Name     : %s\n Father Name      : %s\n Class Refence    : %s\n Session          : %s\n Total Marks      : %s\n Marks Obtained   : %s\n Percentage(%)    : %s\n", $3, $4, $1, $2, $5, $6, $7, $8, $9}'
 }
 
-# experimental function
+function obtainingRecord {
+	case $1 in
+		1) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $1}');;
+		2) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $2}');;
+		3) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $3}');;		
+		4) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $4}');;	
+		5) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $5}');;
+		6) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $6}');;
+		7) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $7}');;
+		8) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $8}');;
+		9) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $9}');;
+		10) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $10}');;
+		11) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $11}');;
+		12) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $12}');;
+		13) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $13}');;		
+		14) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $14}');;	
+		15) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $15}');;
+		16) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $16}');;
+		17) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $17}');;
+		18) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $18}');;
+		19) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $19}');;
+		20) item=$(grep -i "$2" $4 | grep -i "$3" | awk -F ":" '{print $20}');;
+	esac
+	echo $item
+}
+
+# experimental functions
 function experimental {
-	regno="A-2019"
-	rno="23"
-	sname="Muhammad Jamal"
-	fname="Muhammad Kamal"
-	class="9th (F)"
-	session="2018-19"
-	subno=2
-	subname=("English" "Maths")
-	subtotal=(100 100)
-	subobtain=(92 96)
-	gtotal=200
-	gobtain=188
-	#percentage=94
+	echo $regno
+	echo $rno
+	echo $sname
+	echo $fname
+	echo $class
+	echo $session
+	echo $subno
+	echo ${subname[@]}
+	echo ${subtotal[@]}
+	echo ${subobtain[@]}
+	echo $gtotal
+	echo $gobtain
+	echo $percentage
+}
+function display {
+	echo "$1 $2"
+	wait "Press" 1
 }
 ############## Main Program ###############
 while true; do
@@ -171,12 +202,12 @@ while true; do
 			read -p " Do you want to save DMC [Y or y] : " choice
 			if [[ $choice = [Yy] ]]; then
 				echo "$sname:$fname:$regno:$rno:$class:$session:$gtotal:$gobtain:$percentage:$subno" >> $myFile1
-				echo -n "$regno:$rno" >> $myFile2
+				
 				while [[ $count -lt $subno ]]; do
-					echo -n ":${subname[count]}:${subtotal[count]}:${subobtain[count]}" >> $myFile2
+					echo -n "${subname[count]}:${subtotal[count]}:${subobtain[count]}:" >> $myFile2
 					(( count++ ))
 				done
-				echo >> $myFile2
+				echo -en "$regno:$rno:$sname\n" >> $myFile2
 				echo " Database is updating..."
 				sleep 3
 			else
@@ -192,10 +223,10 @@ while true; do
 			line
 			echo " Record Searching Seciton"
 			line
-			regno=$(asking "Registration No")
-			rno=$(asking "Roll No  ")
+			regno=$(asking "Registration No     ")
+			rno=$(asking "Roll No            ")
 			if [[ $regno = "" || $rno = "" ]]; then
-				sname=$(asking "Studnet Name")
+				sname=$(asking "Father or Student Name")
 			fi
 			if [[ ($regno = "" && $sname = "") || ($rno = "" && $sname = "") ]]; then
 				wait "You must enter at least two information for search. Press <Enter> to continue.." 1
@@ -214,10 +245,84 @@ while true; do
 			fi
 			line
 			selection=$(yesno "Is this information correct [Y-N]: ")
+			# Getting record from files and assigning to the variables for further process
 			if [[ $selection = [Yy] ]]; then
-				<<<<<----------------------- Will be started from here ----------------------->>>>>
+				if [[ $regno = "" ]]; then
+					arg1="$rno"
+					arg2="$sname"
+				elif [[ $rno = "" ]]; then
+					arg1="$regno"
+					arg2="$sname"
+				else
+					arg1="$regno"
+					arg2="$rno"
+				fi
+				# Obtaining record from database file 1 and assigning to variables for further process
+				sname=$(obtainingRecord 1 "$arg1" "$arg2" "$myFile1")
+				# If later on in the use the maximum character of a name exceeds change the value of MAXLIMIT at the start of the script
+				if [[ ${#sname} -gt $MAXLIMIT ]]; then
+		 			line
+		 			wait "Refine your search upto one record please. Press <Enter> to proceed." 1
+		 			line
+		 			continue
+		 		fi
+				fname=$(obtainingRecord 2 "$arg1" "$arg2" "$myFile1")
+				regno=$(obtainingRecord 3 "$arg1" "$arg2" "$myFile1")
+				rno=$(obtainingRecord 4 "$arg1" "$arg2" "$myFile1")
+				class=$(obtainingRecord 5 "$arg1" "$arg2" "$myFile1")
+				session=$(obtainingRecord 6 "$arg1" "$arg2" "$myFile1")
+				gtotal=$(obtainingRecord 7 "$arg1" "$arg2" "$myFile1")
+				gobtain=$(obtainingRecord 8 "$arg1" "$arg2" "$myFile1")
+				percentage=$(obtainingRecord 9 "$arg1" "$arg2" "$myFile1")
+				subno=$(obtainingRecord 10 "$arg1" "$arg2" "$myFile1")
+				# Obtaining record from database file 2 and assigning to variables for further process
+				count=0
+				# No of subject is multiplied by 3 to get exect number of record in the database
+				MAX=$(( subno * 3 ))
+				# loop variable is set to obtaing number of record according to the database sequance
+				loop=1
+				#######################################################################################
+				# Problem is here when I want to get info or more then 7 subjects it doesn't work
+				#######################################################################################
+				while [[ $count -lt $subno ]]; do
+					subname[$count]=$(obtainingRecord "$loop" "$arg1" "$arg2" "$myFile2")
+					display "$loop" "${subname[count]}"
+					# loop variable is increased by one to get next record
+					((loop++))
+					subtotal[$count]=$(obtainingRecord "$loop" "$arg1" "$arg2" "$myFile2")
+					display "$loop" "${subtotal[count]}"
+					# loop variable is increased by one to get next record
+					((loop++))
+					subobtain[$count]=$(obtainingRecord "$loop" "$arg1" "$arg2" "$myFile2")
+					display "$loop" "${subobtain[count]}"
+					# loop variable is increased by one to get next record
+					((loop++))
+					((count++))
+				done
+				#<<<<---------------- Start from Here ------------------->>>>>>
+				clear
+				count=0
+				line
+				echo " 1 > Student Name    : $sname"
+				echo " 2 > Father Name     : $fname"
+				echo " 3 > Roll No         : $rno"
+				echo " 4 > Registration No : $regno"
+				echo " 5 > Class           : $class"
+				echo " 6 > Session         : $session"
+				line 1
+				printf " %-10s %-40s %-20s %-20s\n" "Sr. No." "Subject" "Total Marks" "Obtained Marks"
+				line 1
+				while [[ $count < $subno ]]; do
+					printf "  %-10d %-40s %-20d %-20d\n" "$((count+1))" "${subname[$count]}" "${subtotal[$count]}" "${subobtain[$count]}"
+					(( count++ ))
+				done
+				line 1
+				printf "   %-50s %-20d %-20d(%d Per)\n" " " "$gtotal" "$gobtain" "$percentage"
+				line 1
+				#experimental
+				wait "Press Enter to proceed.." 1
 			else
-				wait "Try again.." 1
+				wait "Try again..." 1
 			fi
 			;;
 		3)
